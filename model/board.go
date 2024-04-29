@@ -33,6 +33,17 @@ func NewBoards(deck []cardrank.Card) Boards {
 	return boards
 }
 
+func NewBoardsByHands(hands [][]cardrank.Card, deck []cardrank.Card) Boards {
+	var boards Boards
+
+	for _, hand := range hands {
+		board := NewBoard(hand, deck, []cardrank.Card{})
+		boards = append(boards, board)
+	}
+
+	return boards
+}
+
 func (b Board) Discards() []cardrank.Card {
 	// スーツごとにカードを分類します。
 	suitMap := make(map[cardrank.Suit][]cardrank.Card)
