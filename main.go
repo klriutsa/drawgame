@@ -11,6 +11,8 @@ const (
 	GameType    = cardrank.Badugi
 	PlayerCount = 2
 	DrawCount   = 1
+	ChangeCount = 2
+	MinRank     = cardrank.Nine
 )
 
 func getChangeCount() []int {
@@ -21,6 +23,15 @@ func main() {
 	deck := cardrank.NewDeck()
 
 	boards := model.NewBoards(deck.All())
+
+	//boards := model.NewBoardsByHands([][]cardrank.Card{
+	//	{
+	//		cardrank.New(cardrank.Ace, cardrank.Spade),
+	//		cardrank.New(cardrank.Two, cardrank.Diamond),
+	//		cardrank.New(cardrank.Three, cardrank.Diamond),
+	//		cardrank.New(cardrank.Four, cardrank.Diamond),
+	//	},
+	//}, deck.All())
 
 	resultBoards := make([]model.Board, 0)
 
@@ -37,14 +48,28 @@ func main() {
 	for _, resultBoard := range resultBoards {
 		hands = append(hands, resultBoard.Hand)
 	}
-	badugiHands := getBadugiHands(hands)
+	badugiHands, daiHands := getBadugiHands(hands)
 	badugiMap := make(map[cardrank.Rank]int, 0)
 	for _, hand := range badugiHands {
 		card := util.GetHighCard(hand)
 		badugiMap[card.Rank()]++
 	}
+	daiMap := make(map[string]int, 0)
+	for _, hand := range daiHands {
+		card := util.GetHighCard(hand)
+		key := fmt.Sprintf("%d-%s", len(hand), card.Rank())
+		daiMap[key]++
+	}
 	fmt.Printf("BadugiMap: %v\n", badugiMap)
 	fmt.Printf("BadugiHands: %d\n", len(badugiHands))
+	for key, value := range badugiMap {
+		fmt.Printf("%s:%d\n", key, value)
+	}
+	fmt.Printf("DaiMap: %v\n", daiMap)
+	for key, value := range daiMap {
+		fmt.Printf("%s:%d\n", key, value)
+	}
+	fmt.Printf("DaiHands: %d\n", len(daiHands))
 	fmt.Printf("Boards: %d\n", len(resultBoards))
 	fmt.Printf("FoldCount: %d\n", foldCount)
 }
@@ -59,7 +84,7 @@ func getDrawBoards(boards []model.Board, count int) (model.Boards, int) {
 			fmt.Printf("Current Hand: %s Draw count: %d\n", board.Hand, count)
 		}
 		discard := board.Discards()
-		if len(discard) < 2 {
+		if len(discard) == ChangeCount {
 			drawBoards := board.Draw(discard)
 			resultBoards = append(resultBoards, drawBoards...)
 		} else {
@@ -69,8 +94,9 @@ func getDrawBoards(boards []model.Board, count int) (model.Boards, int) {
 	return resultBoards, foldCounts
 }
 
-func getBadugiHands(hands [][]cardrank.Card) [][]cardrank.Card {
+func getBadugiHands(hands [][]cardrank.Card) ([][]cardrank.Card, [][]cardrank.Card) {
 	var badugiHands [][]cardrank.Card
+	var daiHands [][]cardrank.Card
 	for _, hand := range hands {
 		run := &cardrank.Run{
 			Pockets: [][]cardrank.Card{hand},
@@ -81,7 +107,9 @@ func getBadugiHands(hands [][]cardrank.Card) [][]cardrank.Card {
 		hi := result.Evals[0].Desc(false)
 		if len(hi.Unused) == 0 {
 			badugiHands = append(badugiHands, hand)
+		} else {
+			daiHands = append(daiHands, hi.Best)
 		}
 	}
-	return badugiHands
+	return badugiHands, daiHands
 }
