@@ -5,13 +5,15 @@ import (
 	"drawgame/util"
 	"fmt"
 	"github.com/cardrank/cardrank"
+	"math/rand"
+	"time"
 )
 
 const (
 	GameType    = cardrank.Badugi
 	PlayerCount = 2
-	DrawCount   = 1
-	ChangeCount = 2
+	DrawCount   = 3
+	ChangeCount = 1
 	MinRank     = cardrank.Nine
 )
 
@@ -21,17 +23,19 @@ func getChangeCount() []int {
 
 func main() {
 	deck := cardrank.NewDeck()
+	r := rand.New(rand.New(rand.NewSource(time.Now().UnixNano())))
+	deck.Shuffle(r, 1)
 
-	boards := model.NewBoards(deck.All())
+	//boards := model.NewBoards(deck.All())
 
-	//boards := model.NewBoardsByHands([][]cardrank.Card{
-	//	{
-	//		cardrank.New(cardrank.Ace, cardrank.Spade),
-	//		cardrank.New(cardrank.Two, cardrank.Diamond),
-	//		cardrank.New(cardrank.Three, cardrank.Diamond),
-	//		cardrank.New(cardrank.Four, cardrank.Diamond),
-	//	},
-	//}, deck.All())
+	boards := model.NewBoardsByHands([][]cardrank.Card{
+		{
+			cardrank.New(cardrank.Ace, cardrank.Spade),
+			cardrank.New(cardrank.Two, cardrank.Diamond),
+			cardrank.New(cardrank.Eight, cardrank.Club),
+			cardrank.New(cardrank.Four, cardrank.Diamond),
+		},
+	}, deck.All())
 
 	resultBoards := make([]model.Board, 0)
 
@@ -74,7 +78,7 @@ func main() {
 	fmt.Printf("FoldCount: %d\n", foldCount)
 }
 
-func getDrawBoards(boards []model.Board, count int) (model.Boards, int) {
+func getDrawBoards(boards model.Boards, count int) (model.Boards, int) {
 	resultBoards := make(model.Boards, 0)
 	var foldCounts = 0
 	for _, board := range boards {
@@ -83,7 +87,7 @@ func getDrawBoards(boards []model.Board, count int) (model.Boards, int) {
 		} else {
 			fmt.Printf("Current Hand: %s Draw count: %d\n", board.Hand, count)
 		}
-		discard := board.Discards()
+		discard := board.Discards(MinRank)
 		if len(discard) == ChangeCount {
 			drawBoards := board.Draw(discard)
 			resultBoards = append(resultBoards, drawBoards...)

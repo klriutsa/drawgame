@@ -1,6 +1,8 @@
 package util
 
-import "github.com/cardrank/cardrank"
+import (
+	"github.com/cardrank/cardrank"
+)
 
 func RemoveCardsFromCards(cards []cardrank.Card, removeCards []cardrank.Card) []cardrank.Card {
 	var newCards []cardrank.Card

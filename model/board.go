@@ -44,7 +44,7 @@ func NewBoardsByHands(hands [][]cardrank.Card, deck []cardrank.Card) Boards {
 	return boards
 }
 
-func (b Board) Discards() []cardrank.Card {
+func (b Board) Discards(minRank cardrank.Rank) []cardrank.Card {
 	// スーツごとにカードを分類します。
 	suitMap := make(map[cardrank.Suit][]cardrank.Card)
 	for _, card := range b.Hand {
@@ -75,7 +75,8 @@ func (b Board) Discards() []cardrank.Card {
 		discardCards = append(discardCards, suitMap[maxSuits][3])
 	} else if maxCount == 3 {
 		minCard := suitMap[maxSuits][0]
-		if util.ContainsRank(b.Hand, minCard.Rank()) {
+		hand := util.RemoveCardsFromCards(b.Hand, []cardrank.Card{minCard})
+		if util.ContainsRank(hand, minCard.Rank()) {
 			discardCards = append(discardCards, suitMap[maxSuits][0])
 			discardCards = append(discardCards, suitMap[maxSuits][2])
 		} else {
@@ -142,11 +143,21 @@ func (b Board) Discards() []cardrank.Card {
 		}
 		discardCards = util.RemoveCardsFromCards(b.Hand, keepCards)
 	}
-
+	currentHand := util.RemoveCardsFromCards(b.Hand, discardCards)
+	for _, card := range currentHand {
+		if util.ConvertRank(card.Rank()) > util.ConvertRank(minRank) {
+			discardCards = append(discardCards, card)
+		}
+	}
 	return discardCards
 }
 
 func (b Board) Draw(discardCards []cardrank.Card) Boards {
+	if len(discardCards) == 0 {
+		return Boards{b}
+	}
+	b.Deck = util.RemoveCardsFromCards(b.Deck, discardCards)
+
 	cards := util.GenerateCombinations(b.Deck, len(discardCards))
 
 	var boards = make(Boards, 0)

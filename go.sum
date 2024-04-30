@@ -1,2 +1,4 @@
 github.com/cardrank/cardrank v0.14.9 h1:8EPPK8q1JMtSGXOWQ6Zz98FKE2qPsavly967Cl/yG60=
 github.com/cardrank/cardrank v0.14.9/go.mod h1:6vcfuX0g4wQTk4SMwwE0+9axckdZ+MfXsWQBff0eg0s=
+github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
+github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
