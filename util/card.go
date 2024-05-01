@@ -41,49 +41,6 @@ func ContainsRank(cards []cardrank.Card, rank cardrank.Rank) bool {
 	return false
 }
 
-func ConvertRank(rank cardrank.Rank) int {
-	switch rank {
-	case cardrank.Ace:
-		return 1
-	case cardrank.Two:
-		return 2
-	case cardrank.Three:
-		return 3
-	case cardrank.Four:
-		return 4
-	case cardrank.Five:
-		return 5
-	case cardrank.Six:
-		return 6
-	case cardrank.Seven:
-		return 7
-	case cardrank.Eight:
-		return 8
-	case cardrank.Nine:
-		return 9
-	case cardrank.Ten:
-		return 10
-	case cardrank.Jack:
-		return 11
-	case cardrank.Queen:
-		return 12
-	case cardrank.King:
-		return 13
-	default:
-		return 0
-	}
-}
-
-func GetHighCard(hand []cardrank.Card) cardrank.Card {
-	var highCard cardrank.Card
-	for _, card := range hand {
-		if ConvertRank(highCard.Rank()) < ConvertRank(card.Rank()) {
-			highCard = card
-		}
-	}
-	return highCard
-}
-
 func GenerateCombinations(deck []cardrank.Card, comboSize int) [][]cardrank.Card {
 	var result [][]cardrank.Card
 	combos := make([]cardrank.Card, comboSize)
