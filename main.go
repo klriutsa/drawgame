@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	GameType    = cardrank.Badugi
+	GameType    = cardrank.Lowball
 	PlayerCount = 2
 	DrawCount   = 1
 	ChangeCount = 1
-	MinRank     = cardrank.King
+	MinRank     = cardrank.Nine
 )
 
 func getChangeCount() []int {
@@ -29,10 +29,11 @@ func main() {
 
 	//boards := model.NewBoardsByHands(GameType, [][]cardrank.Card{
 	//	{
-	//		cardrank.New(cardrank.Ace, cardrank.Spade),
-	//		cardrank.New(cardrank.Two, cardrank.Diamond),
-	//		cardrank.New(cardrank.Eight, cardrank.Club),
+	//		cardrank.New(cardrank.Three, cardrank.Diamond),
+	//		cardrank.New(cardrank.Three, cardrank.Club),
 	//		cardrank.New(cardrank.Four, cardrank.Diamond),
+	//		cardrank.New(cardrank.Five, cardrank.Club),
+	//		cardrank.New(cardrank.Queen, cardrank.Heart),
 	//	},
 	//}, deck.All())
 

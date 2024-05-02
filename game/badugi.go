@@ -1,4 +1,4 @@
-package badugi
+package game
 
 import (
 	"fmt"
@@ -9,7 +9,13 @@ import (
 	"github.com/cardrank/cardrank"
 )
 
-func GetDiscard(hand []cardrank.Card, minRank cardrank.Rank) []cardrank.Card {
+type Badugi struct{}
+
+func NewBadugi() Badugi {
+	return Badugi{}
+}
+
+func (b Badugi) GetDiscard(hand []cardrank.Card, minRank cardrank.Rank) []cardrank.Card {
 	// スーツごとにカードを分類します。
 	suitMap := make(map[cardrank.Suit][]cardrank.Card)
 	for _, card := range hand {
@@ -19,7 +25,7 @@ func GetDiscard(hand []cardrank.Card, minRank cardrank.Rank) []cardrank.Card {
 	// スーツごとにカードをランク順に並び替えます。
 	for suit, cards := range suitMap {
 		sort.Slice(cards, func(i, j int) bool {
-			return convertRank(cards[i].Rank()) < convertRank(cards[j].Rank())
+			return b.convertRank(cards[i].Rank()) < b.convertRank(cards[j].Rank())
 		})
 		suitMap[suit] = cards
 	}
@@ -66,14 +72,14 @@ func GetDiscard(hand []cardrank.Card, minRank cardrank.Rank) []cardrank.Card {
 			}
 			minCard1 := suitMap[suits[0]][0]
 			minCard2 := suitMap[suits[1]][0]
-			if convertRank(minCard1.Rank()) != convertRank(minCard2.Rank()) {
+			if b.convertRank(minCard1.Rank()) != b.convertRank(minCard2.Rank()) {
 				discardCards = append(discardCards, suitMap[suits[0]][1])
 				discardCards = append(discardCards, suitMap[suits[1]][1])
 			} else {
-				if convertRank(suitMap[suits[0]][1].Rank()) < convertRank(suitMap[suits[1]][1].Rank()) {
+				if b.convertRank(suitMap[suits[0]][1].Rank()) < b.convertRank(suitMap[suits[1]][1].Rank()) {
 					discardCards = append(discardCards, suitMap[suits[1]][1])
 					discardCards = append(discardCards, suitMap[suits[0]][0])
-				} else if convertRank(suitMap[suits[0]][1].Rank()) > convertRank(suitMap[suits[1]][1].Rank()) {
+				} else if b.convertRank(suitMap[suits[0]][1].Rank()) > b.convertRank(suitMap[suits[1]][1].Rank()) {
 					discardCards = append(discardCards, suitMap[suits[0]][1])
 					discardCards = append(discardCards, suitMap[suits[1]][0])
 				} else {
@@ -110,14 +116,14 @@ func GetDiscard(hand []cardrank.Card, minRank cardrank.Rank) []cardrank.Card {
 	}
 	currentHand := util.RemoveCardsFromCards(hand, discardCards)
 	for _, card := range currentHand {
-		if convertRank(card.Rank()) > convertRank(minRank) {
+		if b.convertRank(card.Rank()) > b.convertRank(minRank) {
 			discardCards = append(discardCards, card)
 		}
 	}
 	return discardCards
 }
 
-func convertRank(rank cardrank.Rank) int {
+func (b Badugi) convertRank(rank cardrank.Rank) int {
 	switch rank {
 	case cardrank.Ace:
 		return 1
@@ -150,18 +156,18 @@ func convertRank(rank cardrank.Rank) int {
 	}
 }
 
-func getHighCard(hand []cardrank.Card) cardrank.Card {
+func (b Badugi) getHighCard(hand []cardrank.Card) cardrank.Card {
 	var highCard cardrank.Card
 	for _, card := range hand {
-		if convertRank(highCard.Rank()) < convertRank(card.Rank()) {
+		if b.convertRank(highCard.Rank()) < b.convertRank(card.Rank()) {
 			highCard = card
 		}
 	}
 	return highCard
 }
 
-func ShowHands(hands [][]cardrank.Card) {
-	badugiMap, daiMap := CollectHands(hands)
+func (b Badugi) ShowHands(hands [][]cardrank.Card) {
+	badugiMap, daiMap := b.collectHands(hands)
 	fmt.Printf("BadugiMap: %v\n", badugiMap)
 	for key, value := range badugiMap {
 		fmt.Printf("%s:%d\n", key, value)
@@ -172,18 +178,18 @@ func ShowHands(hands [][]cardrank.Card) {
 	}
 }
 
-func CollectHands(hands [][]cardrank.Card) (map[cardrank.Rank]int, map[string]int) {
-	badugiHands, daiHands := getBadugiHands(hands)
+func (b Badugi) collectHands(hands [][]cardrank.Card) (map[cardrank.Rank]int, map[string]int) {
+	badugiHands, daiHands := b.getBadugiHands(hands)
 	fmt.Printf("BadugiHands: %d\n", len(badugiHands))
 	fmt.Printf("DaiHands: %d\n", len(daiHands))
 	badugiMap := make(map[cardrank.Rank]int, 0)
 	for _, hand := range badugiHands {
-		card := getHighCard(hand)
+		card := b.getHighCard(hand)
 		badugiMap[card.Rank()]++
 	}
 	daiMap := make(map[string]int, 0)
 	for _, hand := range daiHands {
-		card := getHighCard(hand)
+		card := b.getHighCard(hand)
 		key := fmt.Sprintf("%d-%s", len(hand), card.Rank())
 		daiMap[key]++
 	}
@@ -191,7 +197,7 @@ func CollectHands(hands [][]cardrank.Card) (map[cardrank.Rank]int, map[string]in
 	return badugiMap, daiMap
 }
 
-func getBadugiHands(hands [][]cardrank.Card) ([][]cardrank.Card, [][]cardrank.Card) {
+func (b Badugi) getBadugiHands(hands [][]cardrank.Card) ([][]cardrank.Card, [][]cardrank.Card) {
 	var badugiHands [][]cardrank.Card
 	var daiHands [][]cardrank.Card
 	for _, hand := range hands {

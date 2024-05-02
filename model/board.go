@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	badugi "drawgame/game"
+	"drawgame/game"
 	"drawgame/util"
 
 	"github.com/cardrank/cardrank"
@@ -24,30 +24,32 @@ func NewBoard(game cardrank.Type, hand []cardrank.Card, deck []cardrank.Card, di
 	return Board{game, hand, newDeck, discard}
 }
 
-func NewBoards(game cardrank.Type, deck []cardrank.Card) Boards {
+func NewBoards(gameType cardrank.Type, deck []cardrank.Card) Boards {
 	var boards Boards
 
 	var handSize = 0
 
-	if game == cardrank.Badugi {
+	if gameType == cardrank.Badugi {
 		handSize = 4
+	} else if gameType == cardrank.Lowball {
+		handSize = 5
 	}
 
 	cards := util.GenerateCombinations(deck, handSize)
 
 	for _, card := range cards {
-		board := NewBoard(game, card, deck, []cardrank.Card{})
+		board := NewBoard(gameType, card, deck, []cardrank.Card{})
 		boards = append(boards, board)
 	}
 
 	return boards
 }
 
-func NewBoardsByHands(game cardrank.Type, hands [][]cardrank.Card, deck []cardrank.Card) Boards {
+func NewBoardsByHands(gameType cardrank.Type, hands [][]cardrank.Card, deck []cardrank.Card) Boards {
 	var boards Boards
 
 	for _, hand := range hands {
-		board := NewBoard(game, hand, deck, []cardrank.Card{})
+		board := NewBoard(gameType, hand, deck, []cardrank.Card{})
 		boards = append(boards, board)
 	}
 
@@ -56,7 +58,13 @@ func NewBoardsByHands(game cardrank.Type, hands [][]cardrank.Card, deck []cardra
 
 func (b Board) Discards(minRank cardrank.Rank) []cardrank.Card {
 	if b.Game == cardrank.Badugi {
+		badugi := game.NewBadugi()
+
 		return badugi.GetDiscard(b.Hand, minRank)
+	} else if b.Game == cardrank.Lowball {
+		lowball := game.NewDuceSeven()
+
+		return lowball.GetDiscard(b.Hand, minRank)
 	}
 	return []cardrank.Card{}
 }
@@ -83,7 +91,7 @@ func (b Board) Draw(discardCards []cardrank.Card) Boards {
 	return boards
 }
 
-func (b Boards) ExecDraw(game cardrank.Type, drawCount, changeCount int, minRank cardrank.Rank) {
+func (b Boards) ExecDraw(gameType cardrank.Type, drawCount, changeCount int, minRank cardrank.Rank) {
 	var foldCount = 0
 	currentBoards := b
 
@@ -93,10 +101,18 @@ func (b Boards) ExecDraw(game cardrank.Type, drawCount, changeCount int, minRank
 		foldCount += f
 	}
 
-	if game == cardrank.Badugi {
+	if gameType == cardrank.Badugi {
 		hands := currentBoards.GetHands()
 
+		badugi := game.NewBadugi()
+
 		badugi.ShowHands(hands)
+	} else if gameType == cardrank.Lowball {
+		hands := currentBoards.GetHands()
+
+		lowball := game.NewDuceSeven()
+
+		lowball.ShowHands(hands)
 	}
 }
 
